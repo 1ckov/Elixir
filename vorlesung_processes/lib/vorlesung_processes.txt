@@ -1,0 +1,90 @@
+# __Processe__
+
+Elixirs stärke liegt darin, dass all der code der ausgeführt wird in Einzelne processe ablaüft, sie kommunizieren über so gennante nachrichten, und bilden die grundlagen für paralilität in der Sprache.
+
+In Elixir sind Processes != Processe in Betriebssysteme, sie sind eigentlich als Fibers implementiert, deswegen erlaub auch Elixir diese Hohe scalirbarkeit.  
+## __Basic Funktions__
+
+### **Spawn**
+
+Spawn is der basis mechanismus um Processes zu erzeugen. Er gibt immer eine PID(Process Identifier) zurück die auf den "gespawnten" process zeigt.
+
+Bsp.
+iex> spawn fn -> IO.puts("Hallo World") end
+Hallo World
+#PID<0.107.0>
+
+Man kann auch den **"PID"** abfangen, und danach Überprüfen ob der Process noch am leben ist.
+
+Bsp. 2
+iex> pid = spawn fn -> IO.puts("Hello World") end
+Hello World
+#PID<0.114.0>
+
+iex> Process.alive?(pid)
+false
+
+### **Send und Receive**
+
+Send wird eingesets um die Communication zwischen Processes zu ermöglichen. 
+Es schickt so genanten **"Messeges"** zu der Inbox eines Processes. Und mit der **"Receive"** funktion wird das Verhalten definiert, bei dem auftreten von diesen **"Messeges"**.
+
+Bsp.
+
+iex(1)> send self(), {:ok, "You've got Mail"}
+{:ok, "You've got Mail"}
+
+iex(2)> receive do
+...(2)>   {:ok, msg} -> msg
+...(2)>   {:error, msg} -> msg
+...(2)> after
+...(2)>   1_000 -> "No new Mail"
+...(2)> end
+"You've got Mail"
+
+*Mit hilfe von after können wir vereinbaren, wie lang auf unser **"Messege"** gewartet werden soll.
+
+### **Spawn_link** 
+
+Im Regulären fall, beim Abstürzen eines Processes, gibt es keine Auswirkungen auf andare Processe weil die streng von einander isoliert sind.
+Aber das ist nicht immer Ideal, deswegen Existiert auch **"spawn_link"** als funktion, welche Zwei Processes von einander abhängig macht.
+
+Bsp.
+iex> spawn_link fn -> raise "Crash and burn the whole thing" end
+** (EXIT from #PID<0.140.0>) shell process exited with reason: an exception was raised:
+    ** (RuntimeError) Crash and burn the whole thing
+        (stdlib) erl_eval.erl:678: :erl_eval.do_apply/6
+
+[error] Process #PID<0.142.0> raised an exception
+** (RuntimeError) Crash and burn the whole thing
+    (stdlib) erl_eval.erl:678: :erl_eval.do_apply/6
+
+### **Tasks**
+
+Ist ein Modul was auf den Grundfunktionen aufbaut.
+
+Erleichtert wesentlich das umgehen mit Processe, durch das zurückgeben von Tüppeln
+
+Bsp.
+
+iex> Task.start fn -> IO.puts "Hello World" end
+Hello World
+{:ok, #PID<0.113.0>}
+
+### __async()__ und __await()__
+
+Die beiden Functionen Erlauben es uns die Processe zu dirigieren.
+
+bsp.
+
+
+
+
+
+
+
+
+
+
+
+
